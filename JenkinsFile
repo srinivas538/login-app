@@ -1,0 +1,53 @@
+pipeline {
+   agent {
+       label 'slave'
+   }
+   tools {
+       maven 'maven'
+   }
+   environment {
+       scannerHome = tool 'sonar-scaner'
+        //This can be nexus 3 or Nexus 2
+        NEXUS_VERSION= "nexus3"
+        //This can be http or https
+        NEXUS_PROTOCOL= "http"
+        //Where your Nexus is running
+        NEXUS_URL= "192.168.0.154:8081"
+        // Repository Name where we will upload the artifacts
+        NEXUS_REPOSITORY= "nexus-repo"
+        // Jenkins credentials id to authenticate to Nexus OSS
+        NEXUS_CREDENTIAL_ID= "nexus-creds"
+   }
+
+   stages {
+      stage('git check out') {
+         steps {
+            git 'https://github.com/SuryaPatra/loginapp.git'
+         }
+      }
+      stage('Static code analysis') {
+          steps {
+              withSonarQubeEnv('sonar-server'){
+              sh "mvn sonar:sonar"
+              }
+          }
+      }
+      stage('Maven build') {
+          steps {
+              sh "mvn clean package"
+          }
+      }
+      stage('Deploy to arctifactory'){
+          steps {
+              sh "mvn deploy"
+          }
+      }
+      stage('Deploy App in Tomcat server') {
+          steps {
+              ansiColor('xterm') {
+               ansibleTower async: false, credential: '', extraVars: '', importTowerLogs: true, importWorkflowChildLogs: false, inventory: '', jobTags: '', jobTemplate: 'tomcat-job', jobType: 'run', limit: '', removeColor: false, scmBranch: '', skipJobTags: '', templateType: 'job', throwExceptionWhenFail: false, towerCredentialsId: 'ansible-creds', towerServer: 'ansible-tower', verbose: false
+             }
+          }
+      }
+   } 
+}
