@@ -73,8 +73,8 @@
       <distributionManagement>
           <snapshotRepository>
                <id>nexus</id>
-              <name>nexusrepo</name>
-              <url>http://18.234.55.43:8081/repository/test-repo/</url>
+              <name>nexus</name>
+              <url>http://3.15.146.56:8081/repository/test-snapshot/</url>
          </snapshotRepository>
       </distributionManagement>
            <build>
